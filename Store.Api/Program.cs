@@ -1,12 +1,15 @@
 
+using System.Threading.Tasks;
+using Domain.Contracts;
 using Microsoft.EntityFrameworkCore;
+using Persistence;
 using Persistence.Data;
 
 namespace Store.Api
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +25,16 @@ namespace Store.Api
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            builder.Services.AddScoped<IDbInitializer, DbInitializer>(); // Alow DI for DbInitializer
+
             var app = builder.Build();
+
+            #region Seeding
+            // Code for seeding the database
+            using var scope = app.Services.CreateScope();
+            var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>(); // Ask clr create object from DbInitializer
+            await dbInitializer.InitializedAsync(); 
+            #endregion
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
