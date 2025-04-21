@@ -4,6 +4,8 @@ using Domain.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Persistence.Data;
+using Services;
+using ServicesAbstractions;
 
 namespace Store.Api
 {
@@ -26,6 +28,10 @@ namespace Store.Api
             });
 
             builder.Services.AddScoped<IDbInitializer, DbInitializer>(); // Alow DI for DbInitializer
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Allow DI for UnitOfWork
+            builder.Services.AddScoped<IServiceManager, ServiceManager>(); // Allow DI for ServiceManager
+            builder.Services.AddAutoMapper(typeof(AssembleReference).Assembly); // Allow DI for AutoMapper
+
 
             var app = builder.Build();
 
