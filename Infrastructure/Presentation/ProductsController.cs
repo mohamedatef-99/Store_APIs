@@ -29,6 +29,22 @@ namespace Presentation
             if (result is null) return NotFound();
             return Ok(result); // 200
         }
+
+        [HttpGet("brands")] // Get: /api/products/brands
+        public async Task<IActionResult> GetAllBrands()
+        {
+            var result = await serviceManager.ProductService.GetAllBrandsAsync();
+            if (result is null) return BadRequest();
+            return Ok(result); // 200
+        }
+
+        [HttpGet("types")] // Get: /api/products/brands
+        public async Task<IActionResult> GetAllTypes()
+        {
+            var result = await serviceManager.ProductService.GetAllTypesAsync();
+            if (result is null) return BadRequest();
+            return Ok(result); // 200
+        }
     }
 }
 
