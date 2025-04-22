@@ -49,6 +49,8 @@ namespace Store.Api
                 app.UseSwaggerUI();
             }
 
+            app.UseStaticFiles(); // Midelware for serving static files
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

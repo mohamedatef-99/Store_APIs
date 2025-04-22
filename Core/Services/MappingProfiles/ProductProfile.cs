@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Domain.Models;
 using Shared;
+using static System.Net.WebRequestMethods;
 
 namespace Services.MappingProfiles
 {
@@ -15,7 +16,9 @@ namespace Services.MappingProfiles
         {
             CreateMap<Product, ProductResultDto>()
                 .ForMember(d => d.BrandName, o => o.MapFrom(s => s.ProductBrand.Name))
-                .ForMember(d => d.TypeName, o => o.MapFrom(s => s.ProductType.Name));
+                .ForMember(d => d.TypeName, o => o.MapFrom(s => s.ProductType.Name))
+                //.ForMember(d => d.PictureUrl, o => o.MapFrom(s => $"https://localhost:7289/{s.PictureUrl}")); 
+                .ForMember(d => d.PictureUrl, o => o.MapFrom<PictureUrlResolver>()); 
 
             CreateMap<ProductBrand, BrandResultDto>();
             CreateMap<ProductType, TypeResultDto>();
