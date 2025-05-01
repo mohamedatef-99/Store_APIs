@@ -9,6 +9,7 @@ using Persistence.Data;
 using Services;
 using ServicesAbstractions;
 using Shared;
+using Store.Api.Extensions;
 using Store.Api.Middlewares;
 
 namespace Store.Api
@@ -21,64 +22,18 @@ namespace Store.Api
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.RegisterAllServices(builder.Configuration); // Register all services
 
-            builder.Services.AddDbContext<StoreDbContext>(options =>
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-            });
 
-            builder.Services.AddScoped<IDbInitializer, DbInitializer>(); // Alow DI for DbInitializer
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Allow DI for UnitOfWork
-            builder.Services.AddScoped<IServiceManager, ServiceManager>(); // Allow DI for ServiceManager
-            builder.Services.AddAutoMapper(typeof(AssembleReference).Assembly); // Allow DI for AutoMapper
-
-            builder.Services.Configure<ApiBehaviorOptions>(config =>
-            {
-                config.InvalidModelStateResponseFactory = (actionContext) =>
-                {
-                    var errors = actionContext.ModelState.Where(m => m.Value.Errors.Any()).Select(m => new ValidationError()
-                    {
-                        Field = m.Key,
-                        Errors = m.Value.Errors.Select(errors => errors.ErrorMessage)
-                    });
-                    var response = new ValidationErrorResponse()
-                    {
-                        Errors = errors
-                    };
-                    return new BadRequestObjectResult(response);
-                };
-            });
 
             var app = builder.Build();
 
-            #region Seeding
-            // Code for seeding the database
-            using var scope = app.Services.CreateScope();
-            var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>(); // Ask clr create object from DbInitializer
-            await dbInitializer.InitializedAsync(); 
-            #endregion
 
-            app.UseMiddleware<GlobalErrorHandlingMiddleware>(); // Register the global error handling middleware
-
+            // After build
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseStaticFiles(); // Midelware for serving static files
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
 
 
-            app.MapControllers();
+            await app.ConfigureMiddlewares();
 
             app.Run();
         }
