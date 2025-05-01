@@ -6,6 +6,7 @@ using Persistence;
 using Persistence.Data;
 using Services;
 using ServicesAbstractions;
+using Store.Api.Middlewares;
 
 namespace Store.Api
 {
@@ -41,6 +42,8 @@ namespace Store.Api
             var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>(); // Ask clr create object from DbInitializer
             await dbInitializer.InitializedAsync(); 
             #endregion
+
+            app.UseMiddleware<GlobalErrorHandlingMiddleware>(); // Register the global error handling middleware
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
