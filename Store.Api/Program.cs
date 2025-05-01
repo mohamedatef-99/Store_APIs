@@ -1,11 +1,14 @@
 
 using System.Threading.Tasks;
 using Domain.Contracts;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using Persistence.Data;
 using Services;
 using ServicesAbstractions;
+using Shared;
 using Store.Api.Middlewares;
 
 namespace Store.Api
@@ -33,6 +36,22 @@ namespace Store.Api
             builder.Services.AddScoped<IServiceManager, ServiceManager>(); // Allow DI for ServiceManager
             builder.Services.AddAutoMapper(typeof(AssembleReference).Assembly); // Allow DI for AutoMapper
 
+            builder.Services.Configure<ApiBehaviorOptions>(config =>
+            {
+                config.InvalidModelStateResponseFactory = (actionContext) =>
+                {
+                    var errors = actionContext.ModelState.Where(m => m.Value.Errors.Any()).Select(m => new ValidationError()
+                    {
+                        Field = m.Key,
+                        Errors = m.Value.Errors.Select(errors => errors.ErrorMessage)
+                    });
+                    var response = new ValidationErrorResponse()
+                    {
+                        Errors = errors
+                    };
+                    return new BadRequestObjectResult(response);
+                };
+            });
 
             var app = builder.Build();
 
