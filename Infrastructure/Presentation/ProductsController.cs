@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Presentation.Attributes;
 using ServicesAbstractions;
 using Shared;
 
@@ -22,6 +23,7 @@ namespace Presentation
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaginationResponse<ProductResultDto>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorDetails))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorDetails))]
+        [Cashe(100)]
         public async Task<ActionResult<PaginationResponse<ProductResultDto>>> GetAllProduct([FromQuery] ProductSpecificationParamters specParams)
         {
             var result = await serviceManager.ProductService.GetAllProductAsync(specParams);
